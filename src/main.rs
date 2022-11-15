@@ -53,7 +53,7 @@ fn main() {
 
     let mut particles: Vec<Particle> = vec![];
 
-    for i in 0..particle_count {
+    for i in 1..particle_count {
         let mut rng = rand::thread_rng();
         particles.push(Particle::new(i as f32, Color::RGB(rng.gen(), rng.gen(), rng.gen()) ));
     }

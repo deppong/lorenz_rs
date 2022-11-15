@@ -1,7 +1,20 @@
 # Lorenz System Visualiser in Rust
 
-basically a port of [my lorenz renderer in C](https://github.com/deppong/lorenz_c)
-TODO: make this use opengl instead of the current rendering system.
+basically a port of [my lorenz renderer in C](https://github.com/deppong/lorenz_c).
+
+Implemented some basic 3d matrix rotations. Could add a more encapsulated way of doing this but for now it works I guess.
+
+## Controls 
+Key | Operation
+--- | ---
+W   | Rotate up
+S   | Rotate down
+A   | Rotate left
+D   | Rotate right
+Q   | Yaw clockwise
+E   | Yaw counter-clockwise
+R   | Reset all rotations 
+Esc | Quit
 
 # Building
 

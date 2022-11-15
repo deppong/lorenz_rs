@@ -11,6 +11,9 @@ use sdl2::keyboard::Keycode;
 use structs::*;
 pub mod structs;
 
+use rot_matrix::*;
+pub mod rot_matrix;
+
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 800;
 
@@ -36,38 +39,53 @@ fn main() {
 
     canvas.clear();
 
+
     let mut event_pump = sdl_context.event_pump().unwrap();
-    let mut running = true;
 
+    // Lorenz Constants
+    const rho: f32 = 28.0;
+    const sigma: f32 = 10.0;
+    const beta: f32 = 8.0 / 3.0;
+    const particle_count: usize = 10000;
 
-    let rho = 28.0;
-    let sigma = 10.0;
-    let beta = 8.0 / 3.0;
     let dt = 0.001;
-
     let scale: f32 = 10.0;
 
-    let particle_count = 10000;
+    let mut x_angle: f32 = 0.0;
+    let mut y_angle: f32 = 0.0;
+    let mut z_angle: f32 = 0.0;
 
-    let mut angle: f32 = 0.0;
-
-    let mut particles: Vec<Particle> = vec![];
+    let mut particles = [Particle {x: 0.0, y: 0.0, z: 0.0, color: Color::WHITE}; particle_count];
 
     for i in 1..particle_count {
         let mut rng = rand::thread_rng();
-        particles.push(Particle::new(i as f32, Color::RGB(rng.gen(), rng.gen(), rng.gen()) ));
+        particles[i] = Particle::new(i as f32, Color::RGB(rng.gen(), rng.gen(), rng.gen()));
     }
 
     let mut last_time = Instant::now();
 
-    while running {
+    'running: loop {
+
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} |
                 Event::KeyDown { keycode: Some(Keycode::Escape), ..} => {
-                    running = false;
-                    break;
+                    break 'running;
                 },
+                Event::KeyDown { keycode: Some(Keycode::W), ..} => { x_angle += 0.05; break; },
+                Event::KeyDown { keycode: Some(Keycode::A), ..} => { y_angle -= 0.05; break; },
+                Event::KeyDown { keycode: Some(Keycode::S), ..} => { x_angle -= 0.05; break; },
+                Event::KeyDown { keycode: Some(Keycode::D), ..} => { y_angle += 0.05; break; },
+                Event::KeyDown { keycode: Some(Keycode::Q), ..} => { z_angle -= 0.05; break; },
+                Event::KeyDown { keycode: Some(Keycode::E), ..} => { z_angle += 0.05; break; },
+
+                Event::KeyDown { keycode: Some(Keycode::R), ..} => { 
+                    x_angle = 0.0;
+                    y_angle = 0.0;
+                    z_angle = 0.0;
+                    break; 
+                },
+
                 _ => {}
             }
         }
@@ -88,14 +106,10 @@ fn main() {
 
 
         for i in &mut particles {
-            /*
-                x axis rotation matrix
-                [ 1       0           0     ]
-                [ 0 angle.cos() -angle.sin()] 
-                [ 0 angle.sin()  angle.cos()]
-            */
-            let matx = i.x * 1.0 + i.y * 0.0 + i.z * 0.0;
-            let maty = i.x * 0.0 + i.y * angle.cos() + i.z * -angle.sin();
+            // could use some fixing up
+            let (matx, maty, matz) = rot_x(i.x, i.y, i.z, x_angle);
+            let (matx, maty, matz) = rot_y(matx, maty, matz, y_angle);
+            let (matx, maty, _) = rot_z(matx, maty, matz, z_angle);
 
             let x = (matx * scale) + WIDTH as f32/2.0;
             let y = (maty * scale) + HEIGHT as f32/2.0;
@@ -109,7 +123,6 @@ fn main() {
             thread::sleep(Duration::from_secs_f32(1.0 * dt) - (Instant::now() - last_time));
             last_time = Instant::now();
         }
-        angle += 0.001;
 
         canvas.clear();
         framebuffer.update(None, &framedata, (WIDTH*4) as usize).expect("Texture update");

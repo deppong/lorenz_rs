@@ -42,9 +42,9 @@ fn main() {
     let rho = 28.0;
     let sigma = 10.0;
     let beta = 8.0 / 3.0;
-    let mut dt = 0.002;
+    let mut dt = 0.001;
 
-    let scale: f32 = 5.0;
+    let scale: f32 = 10.0;
 
     let P_COUNT = 100;
 
@@ -84,8 +84,8 @@ fn main() {
 
         for i in &mut particles {
             // put_pixel(i.x as u32, i.y as u32, Color::WHITE, &mut framedata);
-            let x = (i.y * scale) + WIDTH as f32/2.0;
-            let y = (i.z * scale) + HEIGHT as f32/2.0;
+            let x = (i.x * scale) + WIDTH as f32/2.0;
+            let y = (i.y * scale) + HEIGHT as f32/2.0;
             if x >= WIDTH as f32 || y >= HEIGHT as f32 || x <= 0.0 || y <= 0.0 { continue; }
             put_pixel(x as u32, y as u32, i.color, &mut framedata);
         }

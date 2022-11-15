@@ -1,6 +1,6 @@
 # Lorenz System Visualiser in Rust
 
-basically a port of ![my lorenz renderer in C](https://github.com/deppong/lorenz_c)
+basically a port of [my lorenz renderer in C](https://github.com/deppong/lorenz_c)
 TODO: make this use opengl instead of the current rendering system.
 
 # Building

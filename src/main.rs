@@ -1,10 +1,14 @@
 extern crate sdl2;
+extern crate rand;
 
+use std::{time::*, thread};
+use rand::Rng;
 use sdl2::pixels::PixelFormatEnum;
-use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::sys::SDL_Keycode;
+
+use structs::*;
+pub mod structs;
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 800;
@@ -34,7 +38,24 @@ fn main() {
     let mut event_pump = sdl_context.event_pump().unwrap();
     let mut running = true;
 
-    let mut multiplier: u32 = 128;
+
+    let rho = 28.0;
+    let sigma = 10.0;
+    let beta = 8.0 / 3.0;
+    let mut dt = 0.002;
+
+    let scale: f32 = 5.0;
+
+    let P_COUNT = 100;
+
+    let mut particles: Vec<particle> = vec![];
+
+    for i in 0..P_COUNT {
+        let mut rng = rand::thread_rng();
+        particles.push(particle::new(i as f32, Color::RGB(rng.gen(), rng.gen(), rng.gen()) ));
+    }
+
+    let mut last_time = Instant::now();
 
     while running {
         for event in event_pump.poll_iter() {
@@ -44,21 +65,34 @@ fn main() {
                     running = false;
                     break;
                 },
-                Event::KeyDown { keycode: Some(Keycode::Up),   ..} => { multiplier+=1; break; },
-                Event::KeyDown { keycode: Some(Keycode::Down), ..} => { multiplier-=1; break; },
                 _ => {}
             }
         }
+        
+        // edit physics
+        for mut i in &mut particles {
+            let dx = (sigma * (i.y - i.x)) * dt;
+            let dy = (i.x * (rho - i.z) - i.y) * dt;
+            let dz = (i.x * i.y - beta * i.z) * dt;
 
-        // edit framedata as you see fit
-        for y in 0..HEIGHT {
-            for x in 0..WIDTH {
-                let r = multiplier * x / WIDTH;
-                let g = multiplier * y / HEIGHT;
-                let b = 0;
-                let color = Color::RGB(r as u8, g as u8, b as u8);
-                put_pixel(x, y, color, &mut framedata);
-            }
+            i.x += dx;
+            i.y += dy;
+            i.z += dz;
+
+        }
+
+
+        for i in &mut particles {
+            // put_pixel(i.x as u32, i.y as u32, Color::WHITE, &mut framedata);
+            let x = (i.y * scale) + WIDTH as f32/2.0;
+            let y = (i.z * scale) + HEIGHT as f32/2.0;
+            if x >= WIDTH as f32 || y >= HEIGHT as f32 || x <= 0.0 || y <= 0.0 { continue; }
+            put_pixel(x as u32, y as u32, i.color, &mut framedata);
+        }
+
+        if Instant::now() - last_time < Duration::from_secs_f32(1.0 * dt) {
+            thread::sleep(Duration::from_secs_f32(1.0 * dt) - (Instant::now() - last_time));
+            last_time = Instant::now();
         }
 
         canvas.clear();

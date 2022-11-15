@@ -1,7 +1,6 @@
 extern crate sdl2;
 extern crate rand;
 
-use std::f32::consts::PI;
 use std::{time::*, thread};
 use rand::Rng;
 
@@ -33,7 +32,7 @@ fn main() {
     let texture_creator = canvas.texture_creator();
 
     let mut framebuffer = texture_creator.create_texture_streaming(Some(PixelFormatEnum::ARGB8888), WIDTH, HEIGHT).unwrap();
-    let mut framedata: Vec<u8> = vec![0; ((WIDTH*HEIGHT)*4) as usize];
+    let mut framedata: Vec<u8>;
 
     canvas.clear();
 
@@ -52,11 +51,11 @@ fn main() {
 
     let mut angle: f32 = 0.0;
 
-    let mut particles: Vec<particle> = vec![];
+    let mut particles: Vec<Particle> = vec![];
 
     for i in 0..particle_count {
         let mut rng = rand::thread_rng();
-        particles.push(particle::new(i as f32, Color::RGB(rng.gen(), rng.gen(), rng.gen()) ));
+        particles.push(Particle::new(i as f32, Color::RGB(rng.gen(), rng.gen(), rng.gen()) ));
     }
 
     let mut last_time = Instant::now();

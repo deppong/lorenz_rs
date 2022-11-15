@@ -1,5 +1,7 @@
-# sdlrs template
-This is just a simple template for getting up and running with sdl in rust
+# Lorenz System Visualiser in Rust
+
+basically a port of ![my lorenz renderer in C](https://github.com/deppong/lorenz_c)
+TODO: make this use opengl instead of the current rendering system.
 
 # Building
 

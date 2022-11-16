@@ -64,6 +64,8 @@ fn main() {
 
     let mut last_time = Instant::now();
 
+    let mut paused = false;
+
     'running: loop {
 
         for event in event_pump.poll_iter() {
@@ -78,6 +80,7 @@ fn main() {
                 Event::KeyDown { keycode: Some(Keycode::D), ..} => { y_angle += 0.05; break; },
                 Event::KeyDown { keycode: Some(Keycode::Q), ..} => { z_angle -= 0.05; break; },
                 Event::KeyDown { keycode: Some(Keycode::E), ..} => { z_angle += 0.05; break; },
+                Event::KeyDown { keycode: Some(Keycode::Space), ..} => { paused = !paused; break; },
 
                 Event::KeyDown { keycode: Some(Keycode::R), ..} => { 
                     x_angle = 0.0;
@@ -93,15 +96,17 @@ fn main() {
         framedata = vec![0; ((WIDTH*HEIGHT)*4) as usize];
         
         // edit physics
-        for mut i in &mut particles {
-            let dx = (sigma * (i.y - i.x)) * dt;
-            let dy = (i.x * (rho - i.z) - i.y) * dt;
-            let dz = (i.x * i.y - beta * i.z) * dt;
+        if !paused {
+            for mut i in &mut particles {
+                let dx = (sigma * (i.y - i.x)) * dt;
+                let dy = (i.x * (rho - i.z) - i.y) * dt;
+                let dz = (i.x * i.y - beta * i.z) * dt;
 
-            i.x += dx;
-            i.y += dy;
-            i.z += dz;
+                i.x += dx;
+                i.y += dy;
+                i.z += dz;
 
+            }
         }
 
 

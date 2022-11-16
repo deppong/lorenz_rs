@@ -55,6 +55,10 @@ fn main() {
     let mut y_angle: f32 = 0.0;
     let mut z_angle: f32 = 0.0;
 
+    let mut dx_angle: f32 = 0.0;
+    let mut dy_angle: f32 = 0.0;
+    let mut dz_angle: f32 = 0.0;
+
     let mut particles = [Particle {x: 0.0, y: 0.0, z: 0.0, color: Color::WHITE}; particle_count];
 
     for i in 1..particle_count {
@@ -74,13 +78,19 @@ fn main() {
                 Event::KeyDown { keycode: Some(Keycode::Escape), ..} => {
                     break 'running;
                 },
-                Event::KeyDown { keycode: Some(Keycode::W), ..} => { x_angle += 0.05; break; },
-                Event::KeyDown { keycode: Some(Keycode::A), ..} => { y_angle -= 0.05; break; },
-                Event::KeyDown { keycode: Some(Keycode::S), ..} => { x_angle -= 0.05; break; },
-                Event::KeyDown { keycode: Some(Keycode::D), ..} => { y_angle += 0.05; break; },
-                Event::KeyDown { keycode: Some(Keycode::Q), ..} => { z_angle -= 0.05; break; },
-                Event::KeyDown { keycode: Some(Keycode::E), ..} => { z_angle += 0.05; break; },
+                Event::KeyDown { keycode: Some(Keycode::W), ..} => { dx_angle =  0.01; break; },
+                Event::KeyDown { keycode: Some(Keycode::A), ..} => { dy_angle = -0.01; break; },
+                Event::KeyDown { keycode: Some(Keycode::S), ..} => { dx_angle = -0.01; break; },
+                Event::KeyDown { keycode: Some(Keycode::D), ..} => { dy_angle =  0.01; break; },
+                Event::KeyDown { keycode: Some(Keycode::Q), ..} => { dz_angle = -0.01; break; },
+                Event::KeyDown { keycode: Some(Keycode::E), ..} => { dz_angle = 0.01; break; },
                 Event::KeyDown { keycode: Some(Keycode::Space), ..} => { paused = !paused; break; },
+
+                Event::KeyUp { .. } => {
+                    dx_angle = 0.0;
+                    dy_angle = 0.0;
+                    dz_angle = 0.0;
+                },
 
                 Event::KeyDown { keycode: Some(Keycode::R), ..} => { 
                     x_angle = 0.0;
@@ -93,7 +103,13 @@ fn main() {
             }
         }
 
+        // clear framebuffer
         framedata = vec![0; ((WIDTH*HEIGHT)*4) as usize];
+
+        // update angles
+        x_angle += dx_angle; 
+        y_angle += dy_angle; 
+        z_angle += dz_angle; 
         
         // edit physics
         if !paused {
@@ -123,7 +139,7 @@ fn main() {
             put_pixel(x as u32, y as u32, i.color, &mut framedata);
         }
 
-
+        
         if Instant::now() - last_time < Duration::from_secs_f32(1.0 * dt) {
             thread::sleep(Duration::from_secs_f32(1.0 * dt) - (Instant::now() - last_time));
             last_time = Instant::now();

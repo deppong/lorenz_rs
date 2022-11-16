@@ -14,6 +14,7 @@ D   | Rotate right
 Q   | Yaw clockwise
 E   | Yaw counter-clockwise
 R   | Reset all rotations 
+Space | Pause simulation
 Esc | Quit
 
 # Building
